@@ -17,20 +17,20 @@
 	$caughtFishStmt->execute();
 	$fishData = $caughtFishStmt->fetchAll();
 	// TODO: create a select query to get the game data, as a single result, and end up with a $game array
-	$gameSql = 'SELECT * FROM game';
+	$gameSql = "SELECT * FROM game WHERE game_status = 'started'";
 	$gameStmt = $conn->prepare($gameSql);
 	$gameStmt->execute();
 	$game = $gameStmt->fetch();
 	if (isset($_POST['action'])) {
 		$action = $_POST['action'];
 	} 
-	if (!isset($game['status'])) {
+	if (!isset($game['game_status'])) {
 		$game['status'] = 'not started';
 	}
 	if ($action	== 'restart') {
 		$action = 'start_game';
 	} 
-	if (($game['status'] == 'win' || $game['status'] == 'lose') && !in_array($action, ['start_game', 'quit_game'])) {
+	if (($game['game_status'] == 'win' || $game['game_status'] == 'lose') && !in_array($action, ['start_game', 'quit_game'])) {
 	$msg = 'The game has already been played, please start a new game, restart or quit';
 	//$action = 'game_over';
 	}	
@@ -46,7 +46,7 @@
 	} 
 	else if($action == 'fishing') {
 		// Game functionality
-		$startGameSql['game_status'] = 'started';
+		$game['game_status'] = 'started';
 		$fishRandId = array_rand($randFish, 1);
 		$fishCaught = $randFish[$fishRandId];
 		// To be used as a short reference to the 3rd dimension of the array
@@ -55,30 +55,30 @@
 		$randFish[$fishCaught]['amount']--;
 		unset($randFish[$fishRandId]);
 		// find out if i succesfully caught the fish or if it broke my line
-		if ($caughtFishInfo['strength'] <= $startGameSql['game_fishing_line_strength']) {
+		if ($caughtFishInfo['fish_strength'] <= $game['game_fishing_line_strength']) {
 			//successful fish catch
-			$startGameSql['game_score'] += $caughtFishInfo['strength'];
-			$_SESSION['caughtFishes'][] = $fishCaught;
+			$game['game_score'] += $caughtFishInfo['fish_strength'];
+			$fishData['caughtFishes'][] = $fishCaught;
 			$msg = $fishCaught . ' ' . $caughtFishInfo['amount'];
 		} 
 		else {	
 			//fish broke the line
-			$startGameSql['game_lives_remaining']--;
+			$game['game_lives_remaining']--;
 			$msg = $fishCaught . ' broke the line';
 		}
 		// now check if i have any lives left
-		if ($startGameSql['game_lives_remaining'] === 0) {
-			$startGameSql['game_status'] = 'lose';
+		if ($game['game_lives_remaining'] === 0) {
+			$game['game_status'] = 'lose';
 			$msg = 'You lose';
 		}
-		if ($startGameSql['game_score'] >= $startGameSql['game_target_score']) {
-			$startGameSql['game_status'] = 'win';
+		if ($game['game_score'] >= $game['game_target_score']) {
+			$game['game_status'] = 'win';
 			$msg = 'You won';
 		}
 	} 
 	else if ($action == 'quit_game') {
 		$action = 'start_game';
-		$startGameSql['game_status'] = 'not started';
+		$game['game_status'] = 'not started';
 		$updateSql = "UPDATE game SET game_status = 'not_started'";
 		$updateStmt = $pdo->prepare($updateSql);
 		$updateStmt->execute();
@@ -93,13 +93,13 @@
 </head>
 <body>
 	<?php 
-	if ($_SESSION['status'] == 'not started') { 
+	if ($game['game_status'] == 'not started') { 
 		?>
 		<h1>Welcome to Simitive's fishing game</h1>
 		<h3>Click the 'Start new game' button to start playing!</h3>
 		<?php	
 	} 
-	if ($_SESSION['status'] == 'started' || $_SESSION['status'] == 'win' || $_SESSION['status'] == 'lose') { 
+	if ($game['game_status'] == 'started' || $game['game_status'] == 'win' || $game['game_status'] == 'lose') { 
 		?>
 		<h1>
 			<?= $msg ?>
@@ -110,8 +110,11 @@
 					<h1>Remaining fish</h1>
 					<ul>
 					<?php
-					foreach ($_SESSION['randFish'] as $fish) { ?>
-						<?= '<li class="remaining-fish ' . strtolower($fish) . '">' . $fish . ':' . $_SESSION['fishes'][$fish]['strength'] . '<br>' . '</li>';
+					echo "<pre>";
+					var_dump($randFish["fish_name"]);
+					exit;
+					foreach ($randFish as $fish) { ?>
+						<?= '<li class="remaining-fish ' . strtolower($fish) . '">' . $fish . ':' . $randFish['fish_name'][$fish]['fish_strength'] . '<br>' . '</li>';
 					}
 					?>
 					</ul>
@@ -119,16 +122,16 @@
 				<div id="middle" class="section-item">
 					<h1>Fish caught</h1>
 					<?php
-					if (empty($_SESSION['caughtFishes'])) {
+					if (empty($fishData['caughtFishes'])) {
 						?>
 						No fish have been caught yet
 						<?php	
 					} 
 					else {
-						foreach ($_SESSION['caughtFishes'] as $caughtFish) { 
-							$caughtFishInfo = $_SESSION['fishes'][$caughtFish];
+						foreach ($fishData['caughtFishes'] as $caughtFish) { 
+							$caughtFishInfo = $randFish['fish_name'][$caughtFish];
 							?>
-							<?= '<li class="remaining-fish ' . strtolower($caughtFish) . '">' . $caughtFish . ' ' . $_SESSION['fishes'][$caughtFish]['strength'] . '<br>' . '</li>';
+							<?= '<li class="remaining-fish ' . strtolower($caughtFish) . '">' . $caughtFish . ' ' . $randFish['fish_name'][$caughtFish]['fish_strength'] . '<br>' . '</li>';
 						}	
 					}
 					?>
@@ -138,19 +141,19 @@
 				<h2>Game statistics</h2>
 				<p>
 					<strong>Game score: </strong>
-					<?= $_SESSION['gameScore']; ?>
+					<?= $game['game_score']; ?>
 				</p>
 				<p>
 					<strong>Target score: </strong>
-					<?= $_SESSION['targetScore']; ?> 
+					<?= $game['game_target_score']; ?> 
 				</p>
 				<p>
 					<strong>Fishing line strength: </strong>
-					<?= $_SESSION['fishingLineStrength']; ?> 
+					<?= $game['game_fishing_line_strength']; ?> 
 				</p>
 				<p>
 					<strong>Remaining lives: </strong>
-					<?= $_SESSION['lives']; ?> 
+					<?= $game['game_lives_remaining']; ?> 
 				</p>
 				<h2>Play</h2>
 				<?php
@@ -158,12 +161,12 @@
 				?> 
 				<form method="POST" action="<?= $_SERVER['PHP_SELF']; ?>">
 					<?php 
-					if ($_SESSION['status'] == 'started') { 
+					if ($game['game_status'] == 'started') { 
 						?>
 						<button type="submit" name="action" value="fishing">Go Fish</button>
 						<?php
 					}
-					if ($_SESSION['status'] == 'started'  || $_SESSION['status'] == 'win' || $_SESSION['status'] == 'lose') { 
+					if ($game['game_status'] == 'started'  || $game['game_status'] == 'win' || $game['game_status'] == 'lose') { 
 						?>
 						<button type="submit" name="action" value="restart">Restart</button>
 						<button type="submit" name="action" value="quit_game">Quit</button>
