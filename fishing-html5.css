@@ -1,0 +1,124 @@
+body {
+	margin: 0 auto;
+	text-align: center;
+	background-color: #ECF7FF;
+}
+header {
+	max-width: 1280px;
+	height: 590px;
+}
+table {
+	table-layout: auto;
+	width: 50%;
+
+}
+.pond {
+	float: left;
+}
+.pond-header {
+	background-color: #6a5e25;
+	color: #fff;
+	font-size: 30px;
+	font-style: italic;
+}
+
+.pond-body {
+	background-color: #416825;
+	color: #fff;
+	font-size: 18px;
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+
+}
+.caught {
+	float: right;
+}
+.caught-header {
+	background-color: #FFA07A;
+	color: #fff;
+	font-size: 30px;
+	font-style: italic;
+}
+.caught-body {
+	background-color: #F08080;
+	color: #fff;
+	font-size: 18px;
+	font-weight: 400;
+}
+td, th {
+	padding: 5px;
+}
+ul {
+	list-style-type: none;
+	overflow: hidden;
+}
+.remaining-fish {
+	box-sizing: border-box;
+	border: 2px solid black;
+	line-height: 40px;
+	margin: .5em auto;
+	margin-right: 30px;
+	display: inline-block;
+}
+.remaining-fish.mackeral { 
+	background-color: blue;
+	padding: 8px;
+}
+.remaining-fish.bass {
+	background-color: brown;
+	padding: 10px;
+}
+.remaining-fish.cod {
+	background-color: purple;
+	padding: 15px;
+} 
+.remaining-fish.tuna {
+	background-color: pink;
+	padding: 18px;
+}
+.remaining-fish.shark {
+	background-color: red;
+	padding: 25px;
+}
+h1 {
+	background-color: yellow;
+}
+h2 {
+	font-size: 36px;
+}
+p {
+	font-size: 26px;
+}
+.gameplay {
+	width: 1280px;
+	display: inline-block;
+	float: left;
+}
+.game-stats {
+	float: right;
+	width: 625px;
+	margin-top: 68px;
+}
+main {
+	width: 100%;
+}
+#left {
+	background-color: #416825;
+	width: 50%;
+}
+#middle	{
+	background-color: #F08080;
+	width: 50%;
+
+}
+#ponds {
+	float: left;
+	width: 65%;
+	padding: 10px;
+}
+.main__section-item {
+	display: inline-block;
+	min-height: 500px;
+	float: left;
+}
