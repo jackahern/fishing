@@ -88,7 +88,7 @@ ul {
 	-webkit-animation-timing-function: linear;
 }
 .remaining-fish.mackeral { 
-	background: url(mackeral.png);
+	background-color: blue;
 	padding: 8px;
 }
 .remaining-fish.bass {
@@ -104,7 +104,7 @@ ul {
 	padding: 18px;
 }
 .remaining-fish.shark {
-	background-image: url('shark.png');
+	background-color: red;
 	padding: 25px;
 }
 h1 {
